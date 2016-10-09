@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Orbits</title>
+    <style>
+      html, body { margin: 0; padding: 0; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <script src="lib/three.min.js"></script>
+	<script src="lib/OrbitControls.js"></script>
+    <script>
+// INITIAL
+
+var scene = new THREE.Scene();
+var aspect = window.innerWidth / window.innerHeight;
+var camera = new THREE.PerspectiveCamera( 75, aspect, 0.1, 1000 );
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize( window.innerWidth, window.innerHeight );
+document.body.appendChild( renderer.domElement );
+var light = new THREE.DirectionalLight( 0xffffff );
+light.position.set( 0, 1, 1 ).normalize();
+scene.add(light);
+
+
+// CAMERA CONTROLS
+
+var controls = new THREE.OrbitControls( camera );
+controls.enablePan = false;
+controls.enableZoom = false;
+controls.enableRotate = true;
+controls.minDistance;
+controls.maxDistance;
+controls.minPolarAngle;
+controls.maxPolarAngle;
+
+
+// MOON
+
+var geometry = new THREE.SphereGeometry( 0.25, 32, 32 );
+var material = new THREE.MeshPhongMaterial({
+map: THREE.ImageUtils.loadTexture('images/moonmap1k.jpg'),
+bumpMap: THREE.ImageUtils.loadTexture('images/moonbump1k.jpg'),
+bumpScale: 0.005,
+});
+var cube = new THREE.Mesh( geometry, material );
+scene.add( cube );
+camera.position.z = 2;
+cube.scale.set(.5,.5,.5);
+
+
+// EARTH
+
+var earthGeometry   = new THREE.SphereGeometry(0.5, 32, 32);
+var earthMaterial  = new THREE.MeshPhongMaterial({ 
+
+map: THREE.ImageUtils.loadTexture('images/earthmap1k.jpg'),
+bumpMap: THREE.ImageUtils.loadTexture('images/earthbump1k.jpg'),
+bumpScale: 0.05,
+specularMap: THREE.ImageUtils.loadTexture('images/earthspec1k.jpg'),
+specular: new THREE.Color('grey'),
+});
+var earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
+earthMesh.rotation.y = 10;
+scene.add(earthMesh);
+
+var cloudGeometry = new THREE.SphereGeometry(0.51, 32, 32);
+var cloudMaterial = new THREE.MeshPhongMaterial({ 
+map: THREE.ImageUtils.loadTexture('images/earthcloudmap.png'),
+opacity     : 0.9,
+transparent : true,
+});
+var cloudMesh = new THREE.Mesh(cloudGeometry, cloudMaterial);
+scene.add(cloudMesh);
+earthMesh.add(cloudMesh);
+
+
+
+// STARS
+
+var starGeometry = new THREE.SphereGeometry(10, 32, 32);
+var starMaterial  = new THREE.MeshBasicMaterial({ 
+map: THREE.ImageUtils.loadTexture('images/starmap.jpg'),
+side: THREE.BackSide,
+});
+var starMesh = new THREE.Mesh(starGeometry, starMaterial);
+scene.add(starMesh);
+
+var time = 0;
+
+
+
+var render = function () {
+  requestAnimationFrame( render );
+  controls.update();
+  cube.rotation.y += 0.01;
+  earthMesh.rotation.y += 0.001;
+  cloudMesh.rotation.y += 0.0005;
+  time += 0.01;
+  cube.position.x = Math.sin(time);
+  cube.position.z = Math.cos(time);
+  renderer.render( scene, camera );
+};
+
+render();
+
+    </script>
+  </body>
+</html>
